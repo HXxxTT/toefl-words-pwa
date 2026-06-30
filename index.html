@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f7f3e8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="托福单词">
+    <title>30 天托福单词</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
+    <link rel="icon" href="assets/icon-192.png">
+    <link rel="stylesheet" href="app/styles.css?v=2">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">TOEFL 2000</p>
+          <h1>30 天托福单词</h1>
+        </div>
+        <div class="today-pill" id="todayPill">加载中</div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">今日任务</p>
+          <h2 id="dayTitle">第 1 天</h2>
+          <p id="daySubtitle">按早起、中午、傍晚、睡前完成打卡。</p>
+        </div>
+        <div class="hero-controls" aria-label="计划设置">
+          <label>
+            <span>开始日期</span>
+            <input id="startDateInput" type="date">
+          </label>
+          <div class="stepper">
+            <button id="prevDay" type="button" aria-label="前一天">‹</button>
+            <input id="dayInput" type="number" min="1" max="365" inputmode="numeric">
+            <button id="nextDay" type="button" aria-label="后一天">›</button>
+          </div>
+        </div>
+      </section>
+
+      <nav class="slot-tabs" aria-label="时段">
+        <button class="slot-tab" data-slot="morning" type="button">早起</button>
+        <button class="slot-tab" data-slot="noon" type="button">中午</button>
+        <button class="slot-tab" data-slot="evening" type="button">傍晚</button>
+        <button class="slot-tab" data-slot="bedtime" type="button">睡前</button>
+      </nav>
+
+      <section class="task-grid">
+        <article class="task-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow" id="slotLabel">早起</p>
+              <h3 id="taskTitle">新单词</h3>
+            </div>
+            <button id="completeTask" class="primary-button" type="button">完成打卡</button>
+          </div>
+          <div id="taskLists" class="list-chips"></div>
+          <div class="meter">
+            <div class="meter-bar"><span id="dayProgressBar"></span></div>
+            <p id="dayProgressText">今日 0/4</p>
+          </div>
+        </article>
+
+        <article class="task-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">手动查看</p>
+              <h3>List 与筛选</h3>
+            </div>
+            <button id="resetProgress" class="ghost-button" type="button">清除进度</button>
+          </div>
+          <div class="filters">
+            <label>
+              <span>List</span>
+              <select id="listSelect"></select>
+            </label>
+            <label>
+              <span>状态</span>
+              <select id="statusFilter">
+                <option value="all">全部</option>
+                <option value="new">生词</option>
+                <option value="familiar">认识</option>
+                <option value="mastered">掌握</option>
+              </select>
+            </label>
+          </div>
+          <label class="search-box">
+            <span>搜索</span>
+            <input id="searchInput" type="search" placeholder="输入英文或中文释义">
+          </label>
+        </article>
+      </section>
+
+      <section class="words-section">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow" id="activeListMeta">List 01</p>
+            <h3 id="activeListTitle">单词卡</h3>
+          </div>
+          <button id="toggleMeaning" class="ghost-button" type="button">隐藏释义</button>
+        </div>
+        <div id="wordStats" class="word-stats"></div>
+        <div id="words" class="word-list" aria-live="polite"></div>
+      </section>
+
+      <footer class="footer">
+        <span>离线可用：首次打开后，Safari 可通过分享菜单添加到主屏幕。</span>
+        <span id="offlineStatus">缓存准备中</span>
+      </footer>
+    </main>
+
+    <script src="app/app.js?v=2" type="module"></script>
+  </body>
+</html>
