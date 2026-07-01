@@ -165,6 +165,7 @@ select {
 .ghost-button,
 .primary-button,
 .word-actions button,
+.pronounce-button,
 .chip {
   border-radius: 8px;
 }
@@ -359,11 +360,60 @@ select {
   font-weight: 900;
 }
 
+.word-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .word {
+  min-width: 0;
   margin: 0;
   font-size: 1.24rem;
   font-weight: 900;
   line-height: 1.15;
+}
+
+.pronounce-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.pronounce-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 48px;
+  min-height: 34px;
+  padding: 0 7px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--accent-strong);
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.pronounce-button svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pronounce-button:active {
+  border-color: var(--accent);
+  background: #e5f0ef;
+}
+
+.pronounce-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
 }
 
 .phonetic {

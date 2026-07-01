@@ -13,6 +13,7 @@ let selectedDay = dayFromStart(state.startDate);
 let selectedSlot = currentSlot();
 let activeList = listForSerial(selectedDay);
 let showMeaning = true;
+let availableVoices = [];
 
 const $ = (id) => document.getElementById(id);
 
@@ -46,6 +47,7 @@ init();
 
 async function init() {
   bindEvents();
+  initSpeech();
   registerServiceWorker();
   const response = await fetch("data/words.json");
   wordData = await response.json();
@@ -229,7 +231,19 @@ function wordCard(entry) {
     <div class="word-top">
       <span class="word-index">${entry.index}</span>
       <div>
-        <p class="word">${escapeHTML(entry.word)}</p>
+        <div class="word-line">
+          <p class="word">${escapeHTML(entry.word)}</p>
+          <div class="pronounce-actions" aria-label="${escapeHTML(entry.word)} 发音">
+            <button class="pronounce-button" type="button" data-lang="en-GB" aria-label="播放英式读音">
+              ${speakerIcon()}
+              <span>UK</span>
+            </button>
+            <button class="pronounce-button" type="button" data-lang="en-US" aria-label="播放美式读音">
+              ${speakerIcon()}
+              <span>US</span>
+            </button>
+          </div>
+        </div>
         <p class="phonetic">${escapeHTML(entry.phonetic)}</p>
       </div>
     </div>
@@ -240,7 +254,14 @@ function wordCard(entry) {
       <button type="button" data-status="mastered">掌握</button>
     </div>
   `;
-  card.querySelectorAll("button").forEach((button) => {
+  card.querySelectorAll(".pronounce-button").forEach((button) => {
+    button.disabled = !isSpeechSupported();
+    button.title = isSpeechSupported() ? button.getAttribute("aria-label") : "当前浏览器不支持发音";
+    button.addEventListener("click", () => {
+      speakWord(entry.word, button.dataset.lang);
+    });
+  });
+  card.querySelectorAll(".word-actions button").forEach((button) => {
     button.classList.toggle("is-selected", button.dataset.status === status);
     button.addEventListener("click", () => {
       state.wordStatus[entry.id] = button.dataset.status;
@@ -249,6 +270,54 @@ function wordCard(entry) {
     });
   });
   return card;
+}
+
+function initSpeech() {
+  if (!isSpeechSupported()) return;
+  const loadVoices = () => {
+    availableVoices = window.speechSynthesis.getVoices();
+  };
+  loadVoices();
+  window.speechSynthesis.addEventListener("voiceschanged", () => {
+    loadVoices();
+    if (wordData) renderWords();
+  });
+}
+
+function isSpeechSupported() {
+  return "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+}
+
+function speakWord(word, lang) {
+  if (!isSpeechSupported()) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(word);
+  utterance.lang = lang;
+  utterance.rate = 0.9;
+  const voice = voiceForLang(lang);
+  if (voice) utterance.voice = voice;
+  window.speechSynthesis.speak(utterance);
+}
+
+function voiceForLang(lang) {
+  const voices = availableVoices.length ? availableVoices : window.speechSynthesis.getVoices();
+  const normalized = lang.toLowerCase();
+  const language = normalized.split("-")[0];
+  return (
+    voices.find((voice) => voice.lang.toLowerCase() === normalized) ||
+    voices.find((voice) => voice.lang.toLowerCase().startsWith(language)) ||
+    null
+  );
+}
+
+function speakerIcon() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 9v6h4l5 4V5L8 9H4z"></path>
+      <path d="M16 8.5c1.2 1.1 1.8 2.2 1.8 3.5s-.6 2.4-1.8 3.5"></path>
+      <path d="M18.6 6c1.8 1.7 2.7 3.7 2.7 6s-.9 4.3-2.7 6"></path>
+    </svg>
+  `;
 }
 
 function buildListOptions() {
