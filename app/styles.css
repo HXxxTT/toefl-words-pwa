@@ -326,6 +326,8 @@ select {
 }
 
 .word-card {
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
   display: grid;
   gap: 12px;
   min-height: 174px;
@@ -423,6 +425,31 @@ select {
   font-weight: 800;
 }
 
+.example-block {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #ebe3d4;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.example-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.example-label {
+  margin: 0;
+  color: var(--gold);
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.example-en,
+.example-zh,
 .meaning {
   margin: 0;
   color: #39342e;
@@ -430,10 +457,37 @@ select {
   line-height: 1.55;
 }
 
-.meaning.is-hidden {
+.example-en {
+  font-weight: 800;
+}
+
+.example-speak {
+  width: 46px;
+}
+
+.memory-content {
   color: transparent;
-  text-shadow: 0 0 10px rgba(35, 33, 29, 0.45);
+  text-shadow: 0 0 10px rgba(35, 33, 29, 0.5);
   user-select: none;
+  transition: color 120ms ease, text-shadow 120ms ease;
+}
+
+.word-card.is-peeking .memory-content {
+  color: #39342e;
+  text-shadow: none;
+  user-select: text;
+}
+
+.peek-hint {
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.bottom-complete {
+  width: 100%;
+  margin-top: 14px;
 }
 
 .word-actions {

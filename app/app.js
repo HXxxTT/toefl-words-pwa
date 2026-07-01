@@ -12,7 +12,6 @@ let state = loadState();
 let selectedDay = dayFromStart(state.startDate);
 let selectedSlot = currentSlot();
 let activeList = listForSerial(selectedDay);
-let showMeaning = true;
 let availableVoices = [];
 
 const $ = (id) => document.getElementById(id);
@@ -36,7 +35,7 @@ const elements = {
   searchInput: $("searchInput"),
   activeListMeta: $("activeListMeta"),
   activeListTitle: $("activeListTitle"),
-  toggleMeaning: $("toggleMeaning"),
+  completeTaskBottom: $("completeTaskBottom"),
   wordStats: $("wordStats"),
   words: $("words"),
   resetProgress: $("resetProgress"),
@@ -49,7 +48,7 @@ async function init() {
   bindEvents();
   initSpeech();
   registerServiceWorker();
-  const response = await fetch("data/words.json");
+  const response = await fetch("data/words.json?v=2");
   wordData = await response.json();
   buildListOptions();
   render();
@@ -109,12 +108,8 @@ function bindEvents() {
     });
   });
 
-  elements.completeTask.addEventListener("click", () => {
-    const key = taskKey(selectedDay, selectedSlot);
-    state.completedTasks[key] = !state.completedTasks[key];
-    saveState();
-    render();
-  });
+  elements.completeTask.addEventListener("click", toggleCurrentTask);
+  elements.completeTaskBottom.addEventListener("click", toggleCurrentTask);
 
   elements.listSelect.addEventListener("change", () => {
     activeList = Number(elements.listSelect.value);
@@ -124,11 +119,6 @@ function bindEvents() {
   elements.statusFilter.addEventListener("change", renderWords);
   elements.searchInput.addEventListener("input", renderWords);
 
-  elements.toggleMeaning.addEventListener("click", () => {
-    showMeaning = !showMeaning;
-    elements.toggleMeaning.textContent = showMeaning ? "隐藏释义" : "显示释义";
-    renderWords();
-  });
 
   elements.resetProgress.addEventListener("click", () => {
     const ok = window.confirm("确定清除所有打卡和单词熟悉度吗？这个操作不能撤销。");
@@ -157,8 +147,7 @@ function render() {
   elements.dayInput.value = selectedDay;
   elements.slotLabel.textContent = slotInfo.label;
   elements.taskTitle.textContent = slotInfo.title;
-  elements.completeTask.textContent = completed ? "已完成" : "完成打卡";
-  elements.completeTask.classList.toggle("is-done", completed);
+  syncCompleteButtons(completed);
   elements.dayProgressBar.style.width = `${(completedCount / SLOTS.length) * 100}%`;
   elements.dayProgressText.textContent = `今日 ${completedCount}/${SLOTS.length}`;
 
@@ -185,6 +174,20 @@ function render() {
   renderWords();
 }
 
+function toggleCurrentTask() {
+  const key = taskKey(selectedDay, selectedSlot);
+  state.completedTasks[key] = !state.completedTasks[key];
+  saveState();
+  render();
+}
+
+function syncCompleteButtons(completed) {
+  [elements.completeTask, elements.completeTaskBottom].forEach((button) => {
+    button.textContent = completed ? "已完成" : "完成打卡";
+    button.classList.toggle("is-done", completed);
+  });
+}
+
 function renderWords() {
   const list = wordData.lists.find((item) => item.listId === activeList);
   const query = elements.searchInput.value.trim().toLowerCase();
@@ -192,7 +195,7 @@ function renderWords() {
   const words = list.words.filter((entry) => {
     const wordStatus = state.wordStatus[entry.id] || "new";
     const matchesStatus = status === "all" || status === wordStatus;
-    const haystack = `${entry.word} ${entry.phonetic} ${entry.meaning}`.toLowerCase();
+    const haystack = `${entry.word} ${entry.phonetic} ${entry.meaning} ${entry.example?.en || ""} ${entry.example?.zh || ""}`.toLowerCase();
     return matchesStatus && (!query || haystack.includes(query));
   });
   const counts = list.words.reduce(
@@ -247,18 +250,37 @@ function wordCard(entry) {
         <p class="phonetic">${escapeHTML(entry.phonetic)}</p>
       </div>
     </div>
-    <p class="meaning ${showMeaning ? "" : "is-hidden"}">${escapeHTML(entry.meaning)}</p>
+    <div class="example-block">
+      <div class="example-head">
+        <p class="example-label">美式例句</p>
+        <button class="pronounce-button example-speak" type="button" data-example="true" aria-label="播放美式例句">
+          ${speakerIcon()}
+          <span>EX</span>
+        </button>
+      </div>
+      <p class="example-en">${escapeHTML(entry.example?.en || "No example yet.")}</p>
+      <p class="memory-content example-zh">${escapeHTML(entry.example?.zh || "暂无例句翻译")}</p>
+    </div>
+    <p class="memory-content meaning">${escapeHTML(entry.meaning)}</p>
     <div class="word-actions">
       <button type="button" data-status="new">生词</button>
       <button type="button" data-status="familiar">认识</button>
       <button type="button" data-status="mastered">掌握</button>
     </div>
   `;
+  card.addEventListener("pointerdown", (event) => {
+    if (event.target.closest("button")) return;
+    card.classList.add("is-peeking");
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach((eventName) => {
+    card.addEventListener(eventName, () => card.classList.remove("is-peeking"));
+  });
   card.querySelectorAll(".pronounce-button").forEach((button) => {
     button.disabled = !isSpeechSupported();
     button.title = isSpeechSupported() ? button.getAttribute("aria-label") : "当前浏览器不支持发音";
     button.addEventListener("click", () => {
-      speakWord(entry.word, button.dataset.lang);
+      const text = button.dataset.example ? entry.example?.en : entry.word;
+      speakText(text || entry.word, button.dataset.lang || "en-US");
     });
   });
   card.querySelectorAll(".word-actions button").forEach((button) => {
@@ -288,10 +310,10 @@ function isSpeechSupported() {
   return "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
 }
 
-function speakWord(word, lang) {
+function speakText(text, lang) {
   if (!isSpeechSupported()) return;
   window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(word);
+  const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = lang;
   utterance.rate = 0.9;
   const voice = voiceForLang(lang);

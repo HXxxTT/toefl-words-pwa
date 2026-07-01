@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="assets/icon-192.png">
     <link rel="icon" href="assets/icon-192.png">
-    <link rel="stylesheet" href="app/styles.css?v=3">
+    <link rel="stylesheet" href="app/styles.css?v=4">
   </head>
   <body>
     <main class="shell">
@@ -101,10 +101,11 @@
             <p class="eyebrow" id="activeListMeta">List 01</p>
             <h3 id="activeListTitle">单词卡</h3>
           </div>
-          <button id="toggleMeaning" class="ghost-button" type="button">隐藏释义</button>
+          <span class="peek-hint">按住卡片显示释义</span>
         </div>
         <div id="wordStats" class="word-stats"></div>
         <div id="words" class="word-list" aria-live="polite"></div>
+        <button id="completeTaskBottom" class="primary-button bottom-complete" type="button">完成打卡</button>
       </section>
 
       <footer class="footer">
@@ -113,6 +114,6 @@
       </footer>
     </main>
 
-    <script src="app/app.js?v=3" type="module"></script>
+    <script src="app/app.js?v=4" type="module"></script>
   </body>
 </html>
