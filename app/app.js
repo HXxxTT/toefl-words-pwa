@@ -48,7 +48,7 @@ async function init() {
   bindEvents();
   initSpeech();
   registerServiceWorker();
-  const response = await fetch("data/words.json?v=3");
+  const response = await fetch("data/words.json?v=5");
   wordData = await response.json();
   buildListOptions();
   render();
