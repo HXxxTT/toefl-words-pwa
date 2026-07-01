@@ -327,6 +327,8 @@ select {
 
 .word-card {
   -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
   touch-action: manipulation;
   display: grid;
   gap: 12px;
@@ -468,6 +470,7 @@ select {
 .memory-content {
   color: transparent;
   text-shadow: 0 0 10px rgba(35, 33, 29, 0.5);
+  -webkit-user-select: none;
   user-select: none;
   transition: color 120ms ease, text-shadow 120ms ease;
 }
@@ -475,7 +478,8 @@ select {
 .word-card.is-peeking .memory-content {
   color: #39342e;
   text-shadow: none;
-  user-select: text;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .peek-hint {

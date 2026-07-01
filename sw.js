@@ -1,10 +1,10 @@
-const CACHE_NAME = "toefl-words-pwa-v5";
+const CACHE_NAME = "toefl-words-pwa-v6";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./app/styles.css?v=4",
-  "./app/app.js?v=4",
-  "./data/words.json?v=2",
+  "./app/styles.css?v=5",
+  "./app/app.js?v=5",
+  "./data/words.json?v=3",
   "./manifest.webmanifest",
   "./assets/icon-192.png",
   "./assets/icon-512.png",

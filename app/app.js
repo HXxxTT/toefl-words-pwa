@@ -48,7 +48,7 @@ async function init() {
   bindEvents();
   initSpeech();
   registerServiceWorker();
-  const response = await fetch("data/words.json?v=2");
+  const response = await fetch("data/words.json?v=3");
   wordData = await response.json();
   buildListOptions();
   render();
@@ -250,17 +250,7 @@ function wordCard(entry) {
         <p class="phonetic">${escapeHTML(entry.phonetic)}</p>
       </div>
     </div>
-    <div class="example-block">
-      <div class="example-head">
-        <p class="example-label">美式例句</p>
-        <button class="pronounce-button example-speak" type="button" data-example="true" aria-label="播放美式例句">
-          ${speakerIcon()}
-          <span>EX</span>
-        </button>
-      </div>
-      <p class="example-en">${escapeHTML(entry.example?.en || "No example yet.")}</p>
-      <p class="memory-content example-zh">${escapeHTML(entry.example?.zh || "暂无例句翻译")}</p>
-    </div>
+    ${exampleBlock(entry)}
     <p class="memory-content meaning">${escapeHTML(entry.meaning)}</p>
     <div class="word-actions">
       <button type="button" data-status="new">生词</button>
@@ -270,6 +260,7 @@ function wordCard(entry) {
   `;
   card.addEventListener("pointerdown", (event) => {
     if (event.target.closest("button")) return;
+    event.preventDefault();
     card.classList.add("is-peeking");
   });
   ["pointerup", "pointercancel", "pointerleave"].forEach((eventName) => {
@@ -292,6 +283,23 @@ function wordCard(entry) {
     });
   });
   return card;
+}
+
+function exampleBlock(entry) {
+  if (!entry.example?.en || !entry.example?.zh) return "";
+  return `
+    <div class="example-block">
+      <div class="example-head">
+        <p class="example-label">托福学术例句</p>
+        <button class="pronounce-button example-speak" type="button" data-example="true" aria-label="播放美式例句">
+          ${speakerIcon()}
+          <span>EX</span>
+        </button>
+      </div>
+      <p class="example-en">${escapeHTML(entry.example.en)}</p>
+      <p class="memory-content example-zh">${escapeHTML(entry.example.zh)}</p>
+    </div>
+  `;
 }
 
 function initSpeech() {
